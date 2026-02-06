@@ -8,12 +8,20 @@ from pathlib import Path
 BASE_PATH = Path(__file__).parent.parent
 
 N_VOTERS = 10 #100000 # Rough size of Bristol constituency
-
-PARTIES = ["Cons", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform"]
-EMISSION_DIST = [0.16, 0.18, 0.12, 0.03, 0.03, 0.15, 0.33] # from ipsos voting intention opinion poll 06/01/26 (other 6% was split evenly between SNP & Plaid)
+PARTIES = ["Cons", "Lab", "LibDem", "Green", "Reform"]
+EMISSION_DIST = [0.2, 0.23, 0.13, 0.13, 0.31] # from ipsos voting intention opinion poll
 PARTY_IDS = [1101, 1102, 1104, 1105, 1106, 1107, 1110]
 ELECTION_YEAR = 2024
 ATTRIBUTES = ["lrecon", "galtan"]
+
+# GET EMISSION DIST FROM OPINION POLLS, takes opinion poll data for English parties and normalises values (distributing the "other" percentage)
+def get_emission_dist(weight_vector):
+    n_weights = len(weight_vector)
+    total = sum(weight_vector)
+    left_over = 1-total
+    for i in range(len(weight_vector)):
+        weight_vector[i] += left_over/n_weights
+    return weight_vector
 
 # GET & CLEAN DATA FRAME
 def get_data(BASE_PATH, PARTY_IDS):
