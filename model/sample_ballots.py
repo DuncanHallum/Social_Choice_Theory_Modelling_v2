@@ -58,29 +58,35 @@ def fit_gmm(means, PARTIES, EMISSION_DIST, voter_variance=1.0):
 import math
 from sklearn.mixture import GaussianMixture
 
+import numpy as np
+from sklearn.mixture import GaussianMixture
+
 def get_samples(gmm: GaussianMixture, means, n_voters: int, utility_fn=None):
     """
     Sample voters and produce preference ballots.
 
     utility_fn(point, party_mean)
 
-    Default utility = negative Euclidean distance (current behavior).
+    Default utility = negative Euclidean distance (dimension-agnostic).
     """
 
-    parties_and_means = [[i, means[i]] for i in range(len(means))]
+    means = np.asarray(means)
+
+    parties_and_means = [(i, means[i]) for i in range(len(means))]
+
+    # Sample voters from GMM
     sample_points, sample_cluster_labels = gmm.sample(n_samples=n_voters)
+
     sample_ballots = []
 
-    # default utility: negative Euclidean distance
+    # Default utility is Euclidean distance
     if utility_fn is None:
         def utility_fn(point, party_mean):
-            return -math.sqrt(
-                (point[0] - party_mean[0])**2 +
-                (point[1] - party_mean[1])**2
-            )
+            return -np.linalg.norm(point - party_mean)
 
+    # Get ballots
     for point in sample_points:
-        # sort by utility descending
+
         ranking = sorted(
             parties_and_means,
             key=lambda x: utility_fn(point, x[1]),
@@ -90,8 +96,7 @@ def get_samples(gmm: GaussianMixture, means, n_voters: int, utility_fn=None):
         preference_ballot = [x[0] for x in ranking]
         sample_ballots.append(preference_ballot)
 
-    return (sample_points, sample_cluster_labels, sample_ballots)
-
+    return sample_points, sample_cluster_labels, sample_ballots
 
 # RUN CODE
 if __name__ == "__main__":
