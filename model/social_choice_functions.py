@@ -88,7 +88,7 @@ def instantRunoffVote(profile: Profile, n_alts: int, print_scores=False, tie_bre
         remaining.remove(loser)
 
 # Get Pairwise Majority Matrix (function called by Copeland Rule & used for Condorcet Cycle Analysis notebook)
-def getPairMajMat(profile: list[list[int]], n_alts: int, print_scores):
+def getPairMajMat(profile: list[list[int]], n_alts: int, print_scores=False):
     """
     Input: profile, a tuple of tuples of alternatives,
         number of alternatives
